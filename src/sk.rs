@@ -2036,7 +2036,8 @@ impl Canvas {
     direction: TextDirection,
     paint: &Paint,
   ) -> Result<ffi::skiac_line_metrics, NulError> {
-    let c_text = std::ffi::CString::new(text)?;
+    let text_with_zero_width_char = text.to_string() + "\u{200b}";
+    let c_text = std::ffi::CString::new(&text_with_zero_width_char as &str)?;
     let c_font_family = std::ffi::CString::new(font_family)?;
 
     let mut line_metrics = ffi::skiac_line_metrics::default();
@@ -2044,7 +2045,7 @@ impl Canvas {
     unsafe {
       ffi::skiac_canvas_get_line_metrics_or_draw_text(
         c_text.as_ptr(),
-        text.len(),
+        text_with_zero_width_char.len(),
         0.0,
         0.0,
         0.0,
